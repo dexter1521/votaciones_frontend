@@ -1,0 +1,58 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Node dependencies
+/node_modules/
+
+# Build output
+/dist/
+
+# Quasar specific
+/.quasar/
+
+# Environment variables
+# No subas nunca tus variables de entorno a un repositorio público.
+# Crea un archivo .env.example para mostrar qué variables se necesitan.
+.env
+.env.*
+!.env.example
+
+# IDE and editor directories
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Mobile & Desktop builds (Capacitor, Cordova, Electron)
+# Descomenta estas líneas si no quieres versionar el código nativo generado.
+# Si realizas cambios manuales en el código nativo (Android/iOS),
+# es posible que prefieras mantener estas carpetas en tu repositorio.
+# src-capacitor/android/
+# src-capacitor/ios/
+/src-capacitor/node_modules/
+/src-capacitor/www/
+/src-cordova/
+/src-electron/node_modules/
+/src-electron/dist*
+
+# Test reports
+/coverage/
+/.nyc_output/
