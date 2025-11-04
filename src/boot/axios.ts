@@ -10,8 +10,8 @@ declare module '@vue/runtime-core' {
 
 // Configuración de la URL base de la API
 // Cambiar según el entorno (desarrollo/producción)
-const api = axios.create({ 
-  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:3000/api',
+const api = axios.create({
+  baseURL: process.env.API_URL || 'http://localhost:3000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'

@@ -8,7 +8,7 @@ declare module '@vue/runtime-core' {
 }
 
 // Configuración de Socket.IO
-const socket: Socket = io(process.env.VUE_APP_SOCKET_URL || 'http://localhost:3000', {
+const socket: Socket = io(process.env.SOCKET_URL || 'http://localhost:3000', {
   autoConnect: false,
   reconnection: true,
   reconnectionDelay: 1000,

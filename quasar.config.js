@@ -24,6 +24,10 @@ module.exports = configure(function (/* ctx */) {
     ],
 
     build: {
+      env: {
+        API_URL: process.env.API_URL || 'http://localhost:3000/api',
+        SOCKET_URL: process.env.SOCKET_URL || 'http://localhost:3000'
+      },
       target: {
         browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
         node: 'node16'
@@ -54,7 +58,7 @@ module.exports = configure(function (/* ctx */) {
       swFilename: 'sw.js',
       manifestFilename: 'manifest.json',
       useCredentialsForManifestTag: false,
-      
+
       manifest: {
         name: 'Sistema de Votación',
         short_name: 'Votación',
