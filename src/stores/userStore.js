@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { api } from 'boot/axios';
+import { api, setAuthToken, setUnauthorizedHandler } from 'boot/axios';
 import { socket } from 'boot/socket.io';
 
 export const useUserStore = defineStore('user', () => {
@@ -23,6 +23,8 @@ export const useUserStore = defineStore('user', () => {
       user.value = userData;
       isAuthenticated.value = true;
 
+  setAuthToken(newToken);
+
       localStorage.setItem('token', newToken);
       
       // Establecer permisos según rol
@@ -42,6 +44,8 @@ export const useUserStore = defineStore('user', () => {
     user.value = null;
     token.value = null;
     isAuthenticated.value = false;
+
+  setAuthToken(null);
     
     localStorage.removeItem('token');
     
@@ -103,6 +107,16 @@ export const useUserStore = defineStore('user', () => {
       return false;
     }
   };
+
+  setAuthToken(token.value);
+
+  setUnauthorizedHandler(() => {
+    logout();
+
+    if (window.location.hash !== '#/login') {
+      window.location.href = '/#/login';
+    }
+  });
 
   return {
     user,

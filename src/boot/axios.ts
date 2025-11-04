@@ -18,12 +18,31 @@ const api = axios.create({
   }
 });
 
+// Token en memoria para evitar lecturas frecuentes de localStorage
+let authToken: string | null = null;
+let unauthorizedHandler: (() => void) | null = null;
+
+const setAuthToken = (token: string | null) => {
+  authToken = token;
+
+  if (token) {
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common.Authorization;
+  }
+};
+
+const getAuthToken = () => authToken;
+
+const setUnauthorizedHandler = (handler: (() => void) | null) => {
+  unauthorizedHandler = handler;
+};
+
 // Interceptor para agregar token en cada petición
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`;
     }
     return config;
   },
@@ -39,9 +58,14 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado o no válido
-      localStorage.removeItem('token');
-      window.location.href = '/#/login';
+      setAuthToken(null);
+
+      if (unauthorizedHandler) {
+        unauthorizedHandler();
+      } else {
+        localStorage.removeItem('token');
+        window.location.href = '/#/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -52,4 +76,4 @@ export default boot(({ app }) => {
   app.config.globalProperties.$api = api;
 });
 
-export { api };
+export { api, getAuthToken, setAuthToken, setUnauthorizedHandler };
