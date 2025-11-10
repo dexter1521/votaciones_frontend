@@ -25,8 +25,8 @@ module.exports = configure(function (/* ctx */) {
 
     build: {
       env: {
-        API_URL: process.env.API_URL || 'http://localhost:3000/api',
-        SOCKET_URL: process.env.SOCKET_URL || 'http://localhost:3000'
+        API_URL: process.env.API_URL || 'http://localhost:3001',
+        SOCKET_URL: process.env.SOCKET_URL || 'http://localhost:3001'
       },
       target: {
         browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],

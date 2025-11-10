@@ -121,9 +121,11 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { useUserStore } from 'stores/userStore';
 
 const router = useRouter();
 const $q = useQuasar();
+const userStore = useUserStore();
 
 const leftDrawerOpen = ref(false);
 
@@ -138,7 +140,7 @@ const logout = () => {
     cancel: true,
     persistent: true
   }).onOk(() => {
-    localStorage.removeItem('token');
+    userStore.logout();
     router.push('/login');
     $q.notify({
       type: 'info',

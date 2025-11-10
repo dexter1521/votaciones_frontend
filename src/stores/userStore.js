@@ -4,9 +4,9 @@ import { api, setAuthToken, setUnauthorizedHandler } from 'boot/axios';
 import { socket } from 'boot/socket.io';
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref(null);
+  const user = ref(JSON.parse(localStorage.getItem('user') || 'null'));
   const token = ref(localStorage.getItem('token') || null);
-  const isAuthenticated = ref(!!token.value);
+  const isAuthenticated = ref(!!token.value && !!user.value);
 
   // Permisos del usuario
   const canIniciarPleno = ref(false);
@@ -17,21 +17,22 @@ export const useUserStore = defineStore('user', () => {
   const login = async (credentials) => {
     try {
       const response = await api.post('/auth/login', credentials);
-      const { token: newToken, user: userData } = response.data;
+      const { access_token, user: userData } = response.data;
 
-      token.value = newToken;
+      token.value = access_token;
       user.value = userData;
       isAuthenticated.value = true;
 
-  setAuthToken(newToken);
+      setAuthToken(access_token);
 
-      localStorage.setItem('token', newToken);
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
       
       // Establecer permisos según rol
       setPermisos(userData.rol);
       
       // Conectar socket con autenticación
-      socket.auth = { token: newToken };
+      socket.auth = { token: access_token };
       socket.connect();
 
       return userData;
@@ -45,9 +46,10 @@ export const useUserStore = defineStore('user', () => {
     token.value = null;
     isAuthenticated.value = false;
 
-  setAuthToken(null);
+    setAuthToken(null);
     
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     
     // Desconectar socket
     socket.disconnect();
@@ -66,6 +68,12 @@ export const useUserStore = defineStore('user', () => {
 
   const setPermisos = (rol) => {
     switch (rol) {
+      case 'oficial_mayor':
+        canIniciarPleno.value = true;
+        canIniciarVotacion.value = true;
+        canCerrarVotacion.value = true;
+        canVotar.value = true;
+        break;
       case 'administrador':
         canIniciarPleno.value = true;
         canIniciarVotacion.value = true;
@@ -100,15 +108,41 @@ export const useUserStore = defineStore('user', () => {
     try {
       const response = await api.get('/auth/me');
       user.value = response.data;
+      isAuthenticated.value = true;
       setPermisos(response.data.rol);
+      
+      // Reconectar socket si estaba desconectado
+      if (!socket.connected) {
+        socket.auth = { token: token.value };
+        socket.connect();
+      }
+      
       return true;
     } catch (error) {
-      logout();
+      console.error('Error en checkAuth:', error.response?.status, error.message);
+      
+      // Solo limpiar sesión si es un error 401 (no autorizado)
+      // Para otros errores (como 404 endpoint no existe), mantener la sesión
+      if (error.response?.status === 401) {
+        logout();
+        return false;
+      }
+      
+      // Si el endpoint no existe o hay error de red, 
+      // mantener la sesión pero retornar false para indicar que no se pudo verificar
       return false;
     }
   };
 
-  setAuthToken(token.value);
+  // Inicializar token y permisos al cargar el store
+  if (token.value) {
+    setAuthToken(token.value);
+  }
+  
+  // Restaurar permisos si hay usuario guardado
+  if (user.value) {
+    setPermisos(user.value.rol);
+  }
 
   setUnauthorizedHandler(() => {
     logout();

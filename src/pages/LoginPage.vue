@@ -12,7 +12,7 @@
       <q-card-section>
         <q-form @submit.prevent="onSubmit" class="q-gutter-md">
           <q-input
-            v-model="credentials.username"
+            v-model="credentials.usuario"
             label="Usuario"
             filled
             :rules="[val => !!val || 'El usuario es requerido']"
@@ -52,12 +52,14 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { useUserStore } from 'stores/userStore';
 
 const router = useRouter();
 const $q = useQuasar();
+const userStore = useUserStore();
 
 const credentials = ref({
-  username: '',
+  usuario: '',
   password: ''
 });
 
@@ -67,15 +69,11 @@ const onSubmit = async () => {
   loading.value = true;
   
   try {
-    // Simulación de login - TEMPORAL
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Guardar token simulado
-    localStorage.setItem('token', 'token-simulado-' + Date.now());
+    await userStore.login(credentials.value);
     
     $q.notify({
       type: 'positive',
-      message: 'Inicio de sesión exitoso',
+      message: `Bienvenido ${userStore.user.nombre}`,
       position: 'top'
     });
     
@@ -83,7 +81,7 @@ const onSubmit = async () => {
   } catch (error) {
     $q.notify({
       type: 'negative',
-      message: 'Error al iniciar sesión',
+      message: error.message || 'Error al iniciar sesión',
       position: 'top'
     });
   } finally {
