@@ -25,8 +25,9 @@ export const usePlenoStore = defineStore('pleno', () => {
   const cargarPlenosActivos = async () => {
     loading.value = true;
     try {
-      const response = await api.get('/plenos/activos');
-      plenosActivos.value = response.data;
+      // Filtrar plenos activos del lado del cliente
+      const response = await api.get('/plenos');
+      plenosActivos.value = response.data.filter(p => p.estado === 'en_sesion');
       return plenosActivos.value;
     } catch (error) {
       console.error('Error al cargar plenos activos:', error);
@@ -64,34 +65,48 @@ export const usePlenoStore = defineStore('pleno', () => {
     }
   };
 
-  const iniciarPleno = async (plenoId) => {
+  const actualizarPleno = async (plenoId, plenoData) => {
     loading.value = true;
     try {
-      const response = await api.put(`/plenos/${plenoId}/iniciar`);
-      plenoActual.value = response.data;
+      const response = await api.patch(`/plenos/${plenoId}`, plenoData);
+      const id = plenoActual.value?.id_pleno || plenoActual.value?.id;
+      if (plenoActual.value && id === plenoId) {
+        plenoActual.value = response.data;
+      }
       actualizarPlenoEnLista(response.data);
       return response.data;
     } catch (error) {
-      console.error('Error al iniciar pleno:', error);
+      console.error('Error al actualizar pleno:', error);
       throw error;
     } finally {
       loading.value = false;
     }
   };
 
-  const finalizarPleno = async (plenoId) => {
+  const eliminarPleno = async (plenoId) => {
     loading.value = true;
     try {
-      const response = await api.put(`/plenos/${plenoId}/finalizar`);
-      plenoActual.value = response.data;
-      actualizarPlenoEnLista(response.data);
-      return response.data;
+      await api.delete(`/plenos/${plenoId}`);
+      plenos.value = plenos.value.filter(p => (p.id_pleno || p.id) !== plenoId);
+      plenosActivos.value = plenosActivos.value.filter(p => (p.id_pleno || p.id) !== plenoId);
+      const id = plenoActual.value?.id_pleno || plenoActual.value?.id;
+      if (plenoActual.value && id === plenoId) {
+        plenoActual.value = null;
+      }
     } catch (error) {
-      console.error('Error al finalizar pleno:', error);
+      console.error('Error al eliminar pleno:', error);
       throw error;
     } finally {
       loading.value = false;
     }
+  };
+
+  const iniciarPleno = async (plenoId) => {
+    return await actualizarPleno(plenoId, { estado: 'en_sesion' });
+  };
+
+  const finalizarPleno = async (plenoId) => {
+    return await actualizarPleno(plenoId, { estado: 'cerrado' });
   };
 
   const cargarResultados = async (plenoId) => {
@@ -107,20 +122,23 @@ export const usePlenoStore = defineStore('pleno', () => {
     }
   };
 
-  const actualizarPleno = (plenoData) => {
-    if (plenoActual.value && plenoActual.value.id === plenoData.id) {
+  const sincronizarPleno = (plenoData) => {
+    const idActual = plenoActual.value?.id_pleno || plenoActual.value?.id;
+    const idData = plenoData.id_pleno || plenoData.id;
+    if (plenoActual.value && idActual === idData) {
       plenoActual.value = { ...plenoActual.value, ...plenoData };
     }
     actualizarPlenoEnLista(plenoData);
   };
 
   const actualizarPlenoEnLista = (plenoData) => {
-    const index = plenos.value.findIndex(p => p.id === plenoData.id);
+    const idData = plenoData.id_pleno || plenoData.id;
+    const index = plenos.value.findIndex(p => (p.id_pleno || p.id) === idData);
     if (index !== -1) {
       plenos.value[index] = { ...plenos.value[index], ...plenoData };
     }
-    
-    const indexActivo = plenosActivos.value.findIndex(p => p.id === plenoData.id);
+
+    const indexActivo = plenosActivos.value.findIndex(p => (p.id_pleno || p.id) === idData);
     if (indexActivo !== -1) {
       plenosActivos.value[indexActivo] = { ...plenosActivos.value[indexActivo], ...plenoData };
     }
@@ -135,9 +153,11 @@ export const usePlenoStore = defineStore('pleno', () => {
     cargarPlenosActivos,
     cargarPleno,
     crearPleno,
+    actualizarPleno,
+    eliminarPleno,
     iniciarPleno,
     finalizarPleno,
     cargarResultados,
-    actualizarPleno
+    sincronizarPleno
   };
 });

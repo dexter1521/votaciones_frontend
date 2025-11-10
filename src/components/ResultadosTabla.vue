@@ -4,52 +4,21 @@
       <div class="flex justify-between items-center q-mb-md">
         <div class="text-h6">Tabla de Resultados</div>
         <q-btn-group outline>
-          <q-btn
-            icon="refresh"
-            label="Actualizar"
-            color="primary"
-            @click="cargarResultados"
-            :loading="loading"
-          />
-          <q-btn
-            icon="filter_list"
-            label="Filtros"
-            color="primary"
-            @click="mostrarFiltros = !mostrarFiltros"
-          />
+          <q-btn icon="refresh" label="Actualizar" color="primary" @click="cargarResultados" :loading="loading" />
+          <q-btn icon="filter_list" label="Filtros" color="primary" @click="mostrarFiltros = !mostrarFiltros" />
         </q-btn-group>
       </div>
 
       <div v-if="mostrarFiltros" class="filtros-panel q-mb-md">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-4">
-            <q-select
-              v-model="filtroEstado"
-              :options="opcionesEstado"
-              label="Estado"
-              filled
-              dense
-              clearable
-            />
+            <q-select v-model="filtroEstado" :options="opcionesEstado" label="Estado" filled dense clearable />
           </div>
           <div class="col-12 col-md-4">
-            <q-select
-              v-model="filtroResultado"
-              :options="opcionesResultado"
-              label="Resultado"
-              filled
-              dense
-              clearable
-            />
+            <q-select v-model="filtroResultado" :options="opcionesResultado" label="Resultado" filled dense clearable />
           </div>
           <div class="col-12 col-md-4">
-            <q-input
-              v-model="filtroBusqueda"
-              label="Buscar"
-              filled
-              dense
-              clearable
-            >
+            <q-input v-model="filtroBusqueda" label="Buscar" filled dense clearable>
               <template v-slot:prepend>
                 <q-icon name="search" />
               </template>
@@ -58,16 +27,8 @@
         </div>
       </div>
 
-      <q-table
-        :rows="resultadosFiltrados"
-        :columns="columns"
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        flat
-        bordered
-        class="resultados-table"
-      >
+      <q-table :rows="resultadosFiltrados" :columns="columns" row-key="id" :loading="loading" :pagination="pagination"
+        flat bordered class="resultados-table">
         <template v-slot:body-cell-numero="props">
           <q-td :props="props">
             <q-badge color="primary" :label="props.row.numero" />
@@ -110,44 +71,22 @@
 
         <template v-slot:body-cell-resultado="props">
           <q-td :props="props">
-            <q-badge
-              :color="getResultadoColor(props.row.resultado)"
-              :label="props.row.resultado"
-            />
+            <q-badge :color="getResultadoColor(props.row.resultado)" :label="props.row.resultado" />
           </q-td>
         </template>
 
         <template v-slot:body-cell-estado="props">
           <q-td :props="props">
-            <q-badge
-              :color="getEstadoColor(props.row.estado)"
-              :label="props.row.estado"
-            />
+            <q-badge :color="getEstadoColor(props.row.estado)" :label="props.row.estado" />
           </q-td>
         </template>
 
         <template v-slot:body-cell-acciones="props">
           <q-td :props="props">
-            <q-btn
-              flat
-              dense
-              round
-              icon="visibility"
-              color="primary"
-              size="sm"
-              @click="verDetalle(props.row)"
-            >
+            <q-btn flat dense round icon="visibility" color="primary" size="sm" @click="verDetalle(props.row)">
               <q-tooltip>Ver detalle</q-tooltip>
             </q-btn>
-            <q-btn
-              flat
-              dense
-              round
-              icon="bar_chart"
-              color="secondary"
-              size="sm"
-              @click="verGrafico(props.row)"
-            >
+            <q-btn flat dense round icon="bar_chart" color="secondary" size="sm" @click="verGrafico(props.row)">
               <q-tooltip>Ver gráfico</q-tooltip>
             </q-btn>
           </q-td>
@@ -256,7 +195,7 @@ const resultadosFiltrados = computed(() => {
 
   if (filtroBusqueda.value) {
     const busqueda = filtroBusqueda.value.toLowerCase();
-    filtrados = filtrados.filter(r => 
+    filtrados = filtrados.filter(r =>
       r.titulo.toLowerCase().includes(busqueda) ||
       r.descripcion.toLowerCase().includes(busqueda)
     );
@@ -287,12 +226,17 @@ const getEstadoColor = (estado) => {
 const cargarResultados = async () => {
   loading.value = true;
   try {
-    const response = await api.get('/votaciones/resultados');
-    resultados.value = response.data.map((r, index) => ({
-      ...r,
-      numero: index + 1,
-      total: r.a_favor + r.en_contra + r.abstencion
-    }));
+    // TODO: Actualizar endpoint cuando esté disponible en el backend
+    // Posiblemente GET /puntos con filtro de pleno y sus votos
+    console.warn('Endpoint de resultados pendiente de implementar');
+    resultados.value = [];
+
+    // const response = await api.get('/votaciones/resultados');
+    // resultados.value = response.data.map((r, index) => ({
+    //   ...r,
+    //   numero: index + 1,
+    //   total: r.a_favor + r.en_contra + r.abstencion
+    // }));
   } catch (error) {
     console.error('Error al cargar resultados:', error);
     $q.notify({

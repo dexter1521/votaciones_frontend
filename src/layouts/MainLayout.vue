@@ -2,36 +2,18 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
           Sistema de Votación
         </q-toolbar-title>
 
-        <q-btn
-          flat
-          dense
-          round
-          icon="notifications"
-          class="q-mr-sm"
-        >
+        <q-btn flat dense round icon="notifications" class="q-mr-sm">
           <q-badge color="red" floating>3</q-badge>
           <q-tooltip>Notificaciones</q-tooltip>
         </q-btn>
 
-        <q-btn-dropdown
-          flat
-          dense
-          label="Usuario"
-          icon="account_circle"
-        >
+        <q-btn-dropdown flat dense label="Usuario" icon="account_circle">
           <q-list>
             <q-item clickable v-close-popup>
               <q-item-section avatar>
@@ -63,11 +45,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
         <q-item-label header>
           Menú Principal
@@ -82,12 +60,12 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable :to="'/pleno'" exact>
+        <q-item clickable :to="'/plenos'" exact>
           <q-item-section avatar>
             <q-icon name="gavel" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Pleno</q-item-label>
+            <q-item-label>Plenos</q-item-label>
           </q-item-section>
         </q-item>
 

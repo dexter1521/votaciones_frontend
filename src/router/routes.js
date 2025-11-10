@@ -26,11 +26,22 @@ const routes = [
     ]
   },
   {
+    path: '/plenos',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'plenos',
+        component: () => import('pages/PlenosGestion.vue')
+      }
+    ]
+  },
+  {
     path: '/pleno',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: ':id?',
+        path: ':id',
         name: 'pleno',
         component: () => import('pages/PlenoView.vue')
       }
